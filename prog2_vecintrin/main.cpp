@@ -249,7 +249,21 @@ void clampedExpVector(float* values, int* exponents, float* output, int N) {
   // Your solution should work for any value of
   // N and VECTOR_WIDTH, not just when VECTOR_WIDTH divides N
   //
-  
+
+  __cs149_vec_float x ;
+  __cs149_vec_int y ;
+  __cs149_vec_float result;
+  __cs149_mask maskOnes  = _cs149_init_ones();
+  __cs149_mask maskZeros = _cs149_init_ones(0);
+
+  for (int i=0; i<N-(N%VECTOR_WIDTH); i+=VECTOR_WIDTH) {
+    _cs149_vload_float(x, values+i, maskOnes); // Load all x vals
+    _cs149_vload_int(y, exponents+i, maskOnes); // Load all y vals
+
+    // TODO: 3 mask ops for the 3 cases first one sets appropriate elem's in vec to 0,
+    // second calc's third does 9.99...f, then store resulting vec once all masks applied
+
+  }
 }
 
 // returns the sum of all elements in values
@@ -266,15 +280,14 @@ float arraySumSerial(float* values, int N) {
 // You can assume N is a multiple of VECTOR_WIDTH
 // You can assume VECTOR_WIDTH is a power of 2
 float arraySumVector(float* values, int N) {
-  
+
   //
   // CS149 STUDENTS TODO: Implement your vectorized version of arraySumSerial here
   //
-  
+
   for (int i=0; i<N; i+=VECTOR_WIDTH) {
 
   }
 
   return 0.0;
 }
-
