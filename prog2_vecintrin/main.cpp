@@ -263,6 +263,8 @@ void clampedExpVector(float* values, int* exponents, float* output, int N) {
     // TODO: 3 mask ops for the 3 cases first one sets appropriate elem's in vec to 0,
     // second calc's third does 9.99...f, then store resulting vec once all masks applied
 
+    // Write results back to memory
+    _cs149_vstore_float(output+i, result, maskOnes);
   }
 }
 
