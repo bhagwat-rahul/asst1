@@ -1,0 +1,6 @@
+*
+!*.*
+!*/
+!Makefile
+*.ppm
+objs/
