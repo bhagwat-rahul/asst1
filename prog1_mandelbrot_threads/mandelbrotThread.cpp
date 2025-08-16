@@ -88,8 +88,9 @@ void mandelbrotThread(
     // as well.
     for (int i=1; i<numThreads; i++) {
         workers[i] = std::thread(workerThreadStart, &args[i]);
-        workerThreadStart(&args[i-1]);
     }
+
+    workerThreadStart(&args[0]);
 
     // join worker threads
     for (int i=1; i<numThreads; i++) {
