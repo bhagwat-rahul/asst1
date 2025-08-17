@@ -337,10 +337,19 @@ float arraySumVector(float* values, int N) {
   //
   // CS149 STUDENTS TODO: Implement your vectorized version of arraySumSerial here
   //
+  __cs149_mask maskAll = _cs149_init_ones(VECTOR_WIDTH);
+  __cs149_vec<float> sum;
+  _cs149_vset_float(sum, 0.f, maskAll); // init sum w all 0s
 
   for (int i=0; i<N; i+=VECTOR_WIDTH) {
-
+    __cs149_vec<float> x;
+    _cs149_vload_float(x, values+i, maskAll);
+    _cs149_vadd_float(sum, sum, x, maskAll);
   }
-
-  return 0.0;
+  _cs149_hadd_float(sum, sum);
+  _cs149_interleave_float(sum, sum);
+  _cs149_hadd_float(sum, sum);
+  float sumarr[VECTOR_WIDTH];
+  _cs149_vstore_float(sumarr, sum, maskAll);
+  return sumarr[0];
 }
