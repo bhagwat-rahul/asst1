@@ -250,21 +250,41 @@ void clampedExpVector(float* values, int* exponents, float* output, int N) {
   // N and VECTOR_WIDTH, not just when VECTOR_WIDTH divides N
   //
 
-  __cs149_vec_float x ;
-  __cs149_vec_int y ;
-  __cs149_vec_float result;
-  __cs149_mask maskOnes  = _cs149_init_ones();
-  __cs149_mask maskZeros = _cs149_init_ones(0);
-
   for (int i=0; i<N-(N%VECTOR_WIDTH); i+=VECTOR_WIDTH) {
-    _cs149_vload_float(x, values+i, maskOnes); // Load all x vals
-    _cs149_vload_int(y, exponents+i, maskOnes); // Load all y vals
+    __cs149_vec_float x ;
+    __cs149_vec_int y ;
+    __cs149_vec_float result = _cs149_vset_float(1.f);
+    __cs149_vec_int zeroint = _cs149_vset_int(0);
+    __cs149_vec_int oneint = _cs149_vset_int(1);
+    __cs149_vec_float zero = _cs149_vset_float(0.f);
+    __cs149_vec_float topclamp = _cs149_vset_float(9.999999f);
+    __cs149_mask maskAll  = _cs149_init_ones();
+    __cs149_mask maskNone = _cs149_init_ones(0);
+    __cs149_mask maskIsZero = _cs149_init_ones(0);
+    __cs149_mask maskGreaterThanZero = _cs149_init_ones(0);
+    __cs149_mask maskGreaterThanClamp = _cs149_init_ones(0);
 
-    // TODO: 3 mask ops for the 3 cases first one sets appropriate elem's in vec to 0,
-    // second calc's third does 9.99...f, then store resulting vec once all masks applied
+    _cs149_vload_float(x, values+i, maskAll); // Load all x vals
+    _cs149_vload_int(y, exponents+i, maskAll); // Load all y vals
+
+    // Transform 1:- x^0 = 1
+    _cs149_veq_int(maskIsZero, y, zeroint, maskAll); // Create the mask: if (y == 0)
+    _cs149_vset_float(result, 1.f, maskIsZero); // Apply it: output[i] = 1.f;
+
+    // Tranform 2:- set vals of x^y
+    _cs149_vgt_int(maskGreaterThanZero, y, zeroint, maskAll); // if y!=0
+    while (_cs149_cntbits(maskGreaterThanZero) > 0) {
+      _cs149_vgt_int(maskGreaterThanZero, y, zeroint, maskAll);
+      _cs149_vmult_float(result, result, x, maskGreaterThanZero); // result*x
+      _cs149_vsub_int(y, y, oneint, maskGreaterThanZero); // y--
+    }
+
+    // Transform 3:- clamp vals above 9.999..f
+    _cs149_vgt_float(maskGreaterThanClamp, result, topclamp, maskAll); // Create mask for clamp
+    _cs149_vset_float(result, 9.999999f, maskGreaterThanClamp); // Apply
 
     // Write results back to memory
-    _cs149_vstore_float(output+i, result, maskOnes);
+    _cs149_vstore_float(output+i, result, maskAll);
   }
 }
 
