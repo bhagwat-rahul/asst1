@@ -17,9 +17,9 @@ static inline int mandel(float c_re, float c_im, int count) {
     return i;
 }
 
-export void mandelbrot_ispc(uniform float x0, uniform float y0, 
+export void mandelbrot_ispc(uniform float x0, uniform float y0,
                             uniform float x1, uniform float y1,
-                            uniform int width, uniform int height, 
+                            uniform int width, uniform int height,
                             uniform int maxIterations,
                             uniform int output[])
 {
@@ -36,7 +36,7 @@ export void mandelbrot_ispc(uniform float x0, uniform float y0,
 }
 
 // slightly different kernel to support tasking
-task void mandelbrot_ispc_task(uniform float x0, uniform float y0, 
+task void mandelbrot_ispc_task(uniform float x0, uniform float y0,
                                uniform float x1, uniform float y1,
                                uniform int width, uniform int height,
                                uniform int rowsPerTask,
@@ -45,17 +45,17 @@ task void mandelbrot_ispc_task(uniform float x0, uniform float y0,
 {
 
     // taskIndex is an ISPC built-in
-    
+
     uniform int ystart = taskIndex * rowsPerTask;
     uniform int yend = ystart + rowsPerTask;
-    
+
     uniform float dx = (x1 - x0) / width;
     uniform float dy = (y1 - y0) / height;
-    
+
     foreach (j = ystart ... yend, i = 0 ... width) {
             float x = x0 + i * dx;
             float y = y0 + j * dy;
-            
+
             int index = j * width + i;
             output[index] = mandel(x, y, maxIterations);
     }
@@ -67,13 +67,15 @@ export void mandelbrot_ispc_withtasks(uniform float x0, uniform float y0,
                                       uniform int maxIterations,
                                       uniform int output[])
 {
-
-    uniform int rowsPerTask = height / 2;
+    uniform int tasks = 16;
+    // 16 best since i have 4x2 (8) threads on my machine, doubling gives enough
+    // parall to timeslice, get's 25x speedup from serial ispc.
+    uniform int rowsPerTask = height / tasks;
 
     // create 2 tasks
-    launch[2] mandelbrot_ispc_task(x0, y0, x1, y1,
+    launch[tasks] mandelbrot_ispc_task(x0, y0, x1, y1,
                                      width, height,
                                      rowsPerTask,
                                      maxIterations,
-                                     output); 
+                                     output);
 }
