@@ -1,5 +1,5 @@
 
-static const float kThreshold = 0.00001f; 
+static const float kThreshold = 0.00001f;
 
 export void sqrt_ispc(uniform int N,
                       uniform float initialGuess,
@@ -19,7 +19,7 @@ export void sqrt_ispc(uniform int N,
         }
 
         output[i] = x * guess;
-        
+
     }
 }
 
@@ -32,7 +32,7 @@ task void sqrt_ispc_task(uniform int N,
 
     uniform int indexStart = taskIndex * span;
     uniform int indexEnd = min(N, indexStart + span);
-    
+
     foreach (i = indexStart ... indexEnd) {
 
         float x = values[i];
@@ -46,7 +46,7 @@ task void sqrt_ispc_task(uniform int N,
         }
 
         output[i] = x * guess;
-    
+
     }
 }
 
