@@ -7,3 +7,5 @@ objs/
 *.o
 *.log
 *.dat
+prog6_kmeans/start.png
+prog6_kmeans/end.png
