@@ -23,15 +23,15 @@ typedef struct {
 
 /**
  * Checks if the algorithm has converged.
- * 
- * @param prevCost Pointer to the K dimensional array containing cluster costs 
+ *
+ * @param prevCost Pointer to the K dimensional array containing cluster costs
  *    from the previous iteration.
- * @param currCost Pointer to the K dimensional array containing cluster costs 
+ * @param currCost Pointer to the K dimensional array containing cluster costs
  *    from the current iteration.
  * @param epsilon Predefined hyperparameter which is used to determine when
  *    the algorithm has converged.
  * @param K The number of clusters.
- * 
+ *
  * NOTE: DO NOT MODIFY THIS FUNCTION!!!
  */
 static bool stoppingConditionMet(double *prevCost, double *currCost,
@@ -45,7 +45,7 @@ static bool stoppingConditionMet(double *prevCost, double *currCost,
 
 /**
  * Computes L2 distance between two points of dimension nDim.
- * 
+ *
  * @param x Pointer to the beginning of the array representing the first
  *     data point.
  * @param y Poitner to the beginning of the array representing the second
@@ -66,7 +66,7 @@ double dist(double *x, double *y, int nDim) {
  */
 void computeAssignments(WorkerArgs *const args) {
   double *minDist = new double[args->M];
-  
+
   // Initialize arrays
   for (int m =0; m < args->M; m++) {
     minDist[m] = 1e30;
@@ -154,12 +154,12 @@ void computeCost(WorkerArgs *const args) {
 /**
  * Computes the K-Means algorithm, using std::thread to parallelize the work.
  *
- * @param data Pointer to an array of length M*N representing the M different N 
+ * @param data Pointer to an array of length M*N representing the M different N
  *     dimensional data points clustered. The data is layed out in a "data point
- *     major" format, so that data[i*N] is the start of the i'th data point in 
- *     the array. The N values of the i'th datapoint are the N values in the 
+ *     major" format, so that data[i*N] is the start of the i'th data point in
+ *     the array. The N values of the i'th datapoint are the N values in the
  *     range data[i*N] to data[(i+1) * N].
- * @param clusterCentroids Pointer to an array of length K*N representing the K 
+ * @param clusterCentroids Pointer to an array of length K*N representing the K
  *     different N dimensional cluster centroids. The data is laid out in
  *     the same way as explained above for data.
  * @param clusterAssignments Pointer to an array of length M representing the
