@@ -73,16 +73,27 @@ void computeAssignments(WorkerArgs *const args) {
     args->clusterAssignments[m] = -1;
   }
 
+  static const int THREADS = 10;
+  std::thread workers[THREADS];
+  int chunk = (args->M + THREADS - 1) / THREADS;
+
   // Assign datapoints to closest centroids
   for (int k = args->start; k < args->end; k++) {
-    for (int m = 0; m < args->M; m++) {
-      double d = dist(&args->data[m * args->N],
-                      &args->clusterCentroids[k * args->N], args->N);
-      if (d < minDist[m]) {
-        minDist[m] = d;
-        args->clusterAssignments[m] = k;
+      for (int threadidx = 0; threadidx < THREADS; threadidx++) {
+          int mStart = threadidx * chunk;
+          int mEnd   = std::min(args->M, mStart + chunk);
+          workers[threadidx] = std::thread([=, &minDist, &args]() {
+              for (int m = mStart; m < mEnd; m++) {
+                  double d = dist(&args->data[m * args->N],
+                                  &args->clusterCentroids[k * args->N], args->N);
+                  if (d < minDist[m]) {
+                      minDist[m] = d;
+                      args->clusterAssignments[m] = k;
+                  }
+              }
+          });
       }
-    }
+      for (int t = 0; t < THREADS; t++) workers[t].join();
   }
 
   free(minDist);
